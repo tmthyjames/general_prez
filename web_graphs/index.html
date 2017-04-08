@@ -66,7 +66,7 @@
 	</div>
 
 	<div class="panel panel-default">
-		<div class="panel-heading">Geo</div>
+		<div class="geo-heading panel-heading">Choropleth Map</div>
 		<div class="panel-body">
 			<div class="" id="map"></div>
 		</div>
@@ -148,25 +148,29 @@
 			method: 'GET'
 		})
 		.done(function(data){
-
+			var layer = 'HC01_VC03';
+			var layerGroup = new L.layerGroup()
 			var fullMarket = [];
 			var keys = Object.keys(data.geojson);
+			$('.geo-heading')[0].innerHTML = 'Choropleth Map - ' + data.dataDef[layer]
 			for (var i in keys){
 				options = {
-					color: '#e7908e',
-				    fillColor: getColor(data.geojson[keys[i]].HC01_VC03_pct),
+					color: '#999',
+				    fillColor: getColor(data.geojson[keys[i]][layer + '_pct']),
 				    weight: 1,
 				    opacity: 1,
-				    fillOpacity: 0.6
+				    fillOpacity: 0.6,
+				    dashArray: '5'
 				}
 				var polyLayer = L.geoJson(JSON.parse(data.geojson[keys[i]].the_geom), options);
 				polyLayer.addTo(map);
 
-				if (data.geojson[keys[i]].starbucks_count_pct >= 0.5){
+				if (data.geojson[keys[i]].starbucks_count >= 2){
 					options.fill = 'url(images/image.gif)';
 					var fullPoly = L.geoJson(JSON.parse(data.geojson[keys[i]].the_geom), options);
 					fullPoly.addTo(map);
 				}
+				layerGroup.addLayer(polyLayer)
 			}
 
 			var x = 'HC03_VC88',
