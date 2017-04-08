@@ -1,0 +1,240 @@
+<!doctype html>
+<meta charset="utf-8">
+<head>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link href="libs/leaflet.css" rel="stylesheet">
+	<link href="libs/leaflet.groupedlayercontrol.min.css" rel="stylesheet">
+
+	<script
+	  src="https://code.jquery.com/jquery-3.2.1.min.js"
+	  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+	  crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<script src="//d3plus.org/js/d3.js"></script>
+	<script src="//d3plus.org/js/d3plus.js"></script>
+	<script src="libs/leaflet.min.js"></script>
+	<script src="libs/leaflet.groupedlayercontrol.min.js"></script>
+	<script src="libs/leaflet-polygon.fillPattern.js"></script>
+
+</head>
+<body>
+	<style>
+		#map {
+			top:0px;
+			left:0px;
+			right:0px;
+			height: 500px;
+			border: #D6D5D5 solid 2px;
+			cursor: default;
+		}
+		.legend {
+		    line-height: 18px;
+		    color: #555;
+		}
+		.legend i {
+		    width: 18px;
+		    height: 18px;
+		    float: left;
+		    margin-right: 8px;
+		    opacity: 0.7;
+		}
+		.info{
+			overflow-y:auto;
+			background: rgba(255,255,255,0.85);
+			-webkit-border-radius: 4px;
+			-moz-border-radius: 4px;
+			border-radius: 4px;
+			-webkit-box-shadow:0 1px 5px rgba(0,0,0,0.65);
+			-moz-box-shadow:0 1px 5px rgba(0,0,0,0.65);
+			box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+			padding: 6px 8px;
+			padding: 6px 8px;
+		}
+		.row1, #viz {
+			height: 500px;
+		}
+		.panel{
+			margin: 10px;
+		}
+	</style>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">Scatter</div>
+		<div class="panel-body">
+			<div id="viz"></div>
+		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">Geo</div>
+		<div class="panel-body">
+			<div class="" id="map"></div>
+		</div>
+	</div>
+
+	<script>
+
+		function getColor(percentVac) {
+			var color;
+		    if ((0.875 <= percentVac && percentVac <= 1) || percentVac > 1){  
+		      color =  vacColorScale.vac;
+		    } else if (0.75 <= percentVac && percentVac < 0.875){
+		      color =  vacColorScale.vac1;
+		    } else if (0.625 <= percentVac && percentVac < 0.75){
+		      color =  vacColorScale.vac2;
+		    } else if (0.5 <= percentVac && percentVac < 0.625){
+		      color =  vacColorScale.vac3;
+		    } else if (0.375 <= percentVac && percentVac < 0.5){
+		      color =  vacColorScale.noVac;
+		    } else if (0.25 <= percentVac && percentVac < 0.375){
+		      color =  vacColorScale.noVac1;
+		    } else if (0.125 <= percentVac && percentVac < 0.25){
+		      color =  vacColorScale.noVac2;
+		    } else if (percentVac < 0.125){
+		      color =  vacColorScale.noVac3;
+		    } else {
+		      color =  "#101010"
+		    }
+		    return color;
+		}
+
+	    var vacColorScale = {
+	      vac: ["#004529"],
+	      vac1: ["#006837"],
+	      vac2: ["#238443"],
+	      vac3: ["#41ab5d"],
+	      noVac: ["#78c679"],
+	      noVac1: ["#addd8e"],
+	      noVac2: ["#d9f0a3"],
+	      noVac3: ["#f7fcb9"]
+	    }
+
+		// var stamenAttribution = 'Map tiles by <a href="//stamen.com" target="_blank">Stamen Design</a>, under <a href="//creativecommons.org/licenses/by/3.0" target="_blank">CC BY 3.0</a>. Data by <a href="//openstreetmap.org" target="_blank">OpenStreetMap</a>, under <a href="//creativecommons.org/licenses/by-sa/3.0" target="_blank">CC BY SA</a>';
+		// var openStreetMapAttribution = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+
+		// var tileOptions = {
+		// 	maxZoom: 19,
+		// 	subdomains: ['a','b','c']
+	 //    };
+
+		// var baseLayer = new L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', $.extend({attribution: stamenAttribution}, tileOptions));
+	    // var streets = new L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', $.extend({attribution: openStreetMapAttribution}, tileOptions));
+
+		// var baseMaps = {
+		// 	"Grayscale": baseLayer,
+		// 	"Streets": streets
+		// };
+
+		// var map = new L.map('map', {
+		// 	zoom: 4,
+		// 	layers: [baseMaps["Streets"]]
+		// });
+
+		var map = new L.map('map', {
+			center: [35.700275, -86.787130],
+		    zoom: 8,
+		    layers: [
+		        new L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		            subdomains: ['a','b','c'],
+		            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		        })
+		    ]
+		});  
+		map.scrollWheelZoom.disable();
+
+
+		$.ajax({
+			url: 'data_sample_Nashville.json',
+			method: 'GET'
+		})
+		.done(function(data){
+
+			var fullMarket = [];
+			var keys = Object.keys(data.geojson);
+			for (var i in keys){
+				options = {
+					color: '#e7908e',
+				    fillColor: getColor(data.geojson[keys[i]].HC01_VC03_pct),
+				    weight: 1,
+				    opacity: 1,
+				    fillOpacity: 0.6
+				}
+				var polyLayer = L.geoJson(JSON.parse(data.geojson[keys[i]].the_geom), options);
+				polyLayer.addTo(map);
+
+				if (data.geojson[keys[i]].starbucks_count_pct >= 0.5){
+					options.fill = 'url(images/image.gif)';
+					var fullPoly = L.geoJson(JSON.parse(data.geojson[keys[i]].the_geom), options);
+					fullPoly.addTo(map);
+				}
+			}
+
+			var x = 'HC03_VC88',
+				y = 'HC03_VC96'
+				c = 'num_of_sb',
+				colorScale = ["#337ab7", "#63a0d4", "#9fc5e5", "#dbe9f5", "#f9e2e2", "#f4cecd", "#e7908e", "#d9534f"],
+				s = 'sb_per_capita',
+				zipcode = "zipcode",
+				title = "The General - Coffee",
+				groups = [zipcode];
+
+			var visualization = d3plus.viz()
+				.container("#viz")
+				.data(data.data)
+				.type("scatter")
+				.id(groups)
+				.order({
+					sort: "asc"
+				})
+				.size({
+					value: function(d){
+						return d[s]
+					}
+				})
+				.aggs({
+					[x]:"median",
+					[y]:"median"
+				})
+				.title(title)
+				.title({
+					sub: "Size: " + data.dataDef[s]
+				})
+				.ui([
+					{
+						"method" : "size",
+						"value"  : [s, "HC01_VC03", "num_of_sb"]
+					}
+				])
+				.color({
+					value: function(d){
+						if (d.has_starbucks) return '#3182bd';
+						else return '#fd8d3c';
+					}
+				})
+				// .color({
+				// 	heatmap: colorScale,
+				// 	value: c
+				// })
+				.tooltip({
+					value: [zipcode],
+					html: function(d){
+						var zipcode = String(d);
+						var key = '0'.repeat(5 - zipcode.length) + zipcode;
+						return d;
+					}
+				})
+				.x({
+					value: x,
+					label: data.dataDef[x]
+				})
+				.y({
+					value: y,
+					label: data.dataDef[y]
+				})
+				.draw()
+		})
+		.fail(function(xhr, err){
+			console.log(xhr, err);
+		});
+	</script>
+</body>
