@@ -18,6 +18,7 @@
 	<script src="libs/crossfilter.min.js"></script>
 	<script src="libs/dc.min.js"></script>
 	<script src="libs/dc.patches.js"></script>
+	<script src="libs/leaflet-heat.js"></script>
 
 </head>
 <body>
@@ -29,6 +30,9 @@
 			height: 500px;
 			border: #D6D5D5 solid 2px;
 			cursor: default;
+		}
+		#heatMap {
+			height: 405px;
 		}
 		.legend {
 		    line-height: 18px;
@@ -172,7 +176,7 @@
 	                    <div chart class="chart dc-graph" 
 		                    type="rowChart"
 	                    	id="page"
-	                    	dimension="return d.num_of_sb" 
+	                    	dimension="return d.zipcode" 
 	                    	opts='{ "colors": "#6baed6", "elasticX": true, "labelOffsetY": 10, "xAxis": {"ticks": 6} }'>
 	                    </div>
 	                </div>
@@ -207,6 +211,21 @@
 	            </div>
 	        </div>
 	    </div>
+    </div>
+
+	<div class="col-sm-4 grouping">
+        <div class="panel panel-default" style="height:450px;" id="topRight">
+            <div class="panel-heading">
+            	<a class="btn-default btn btn-md pull-right reset"><span class="fa fa-reply"></span></a>
+	            <ul class="nav nav-pills">
+	                <li class="active"><a href="#account-pills" data-toggle="tab" aria-expanded="false">Section</a>
+	                </li>
+	            </ul>
+            </div>
+            <div class="panel-body">
+            	<div id="heatMap"></div>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -269,8 +288,10 @@
 		})
 		.done(function(data){
 
+			console.log(data);
+
 			filter.add(data.data);
-			console.log(data.data);
+			allDim = filter.dimension(function(d){return d});
 
 			var layer = 'HC01_VC03';
 			var layerGroup = new L.layerGroup()
@@ -287,13 +308,13 @@
 				    opacity: 1,
 				    fillOpacity: 0.6
 				}
-				var polyLayer = L.geoJson(JSON.parse(data.geojson[keys[i]].the_geom), options);
+				var polyLayer = L.geoJson(data.geojson[keys[i]].the_geom, options);
 				layers[keys[i]] = polyLayer;
 				polyLayer.addTo(map);
 
 				if (data.geojson[keys[i]].starbucks_count >= 2){
 					options.fill = 'url(images/image.gif)';
-					var fullPoly = L.geoJson(JSON.parse(data.geojson[keys[i]].the_geom), options);
+					var fullPoly = L.geoJson(data.geojson[keys[i]].the_geom, options);
 					fullPoly.addTo(map);
 				}
 				layerGroup.addLayer(polyLayer)
@@ -310,7 +331,7 @@
 
 			var visualization = d3plus.viz()
 				.container("#viz")
-				.data(data.data)
+				.data(data.d3data)
 				.type("scatter")
 				.id(groups)
 				.order({
@@ -377,7 +398,7 @@
 					filter: filter,
 					dim: fnDim,
 					chartOpts: chartOpts
-				});
+				}, data);
 			});
 
 			$('div[type="pieChart"').each(function(i,v){
@@ -416,13 +437,60 @@
 
 			});
 
+
+		    var heatMap = L.map('heatMap');
+		    heatMap.setView([36.166294, -86.780357], 6);
+		    var cleanMap = true;
+			var drawMap = function(){
+				mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+				L.tileLayer(
+					'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+						attribution: '&copy; ' + mapLink + ' Contributors',
+						maxZoom: 15,
+					}).addTo(heatMap);
+
+				//HeatMap
+				var geoData = [];
+				var Latitude = 36.166294, 
+					Longitude = -86.780357;
+				allDim.top(Infinity).forEach(function (d) {
+					if (d.Longitude != 0 && d.Latitude != 0){
+						geoData.push([d.Latitude, d.Longitude, 1]);
+						Latitude = d.Latitude;
+						Longitude = d.Longitude;
+					}
+				});
+				if (!cleanMap){
+					heatMap.setView([Latitude, Longitude], 10);
+				}
+				var heat = L.heatLayer(geoData,{
+					radius: 10,
+					blur: 20, 
+					maxZoom: 1,
+				}).addTo(heatMap);
+			};
+
+			drawMap();
+			console.log(data.data.filter(function(d){return d.zipcode == 38119;}));
+
+	        for (var i = 0; i < dc.chartRegistry.list().length; i++) {
+	            var chartI = dc.chartRegistry.list()[i];
+	            chartI.on("filtered", function(chart, filter){
+					heatMap.eachLayer(function (layer) {
+						heatMap.removeLayer(layer);
+						cleanMap = false;
+					}); 
+					drawMap();
+	            });
+	        };
+
 		})
 		.fail(function(xhr, err){
 			console.log(xhr, err);
 		});
 
 
-		$.fn.rowChart = function(options){
+		$.fn.rowChart = function(options, data){
 			var chart = dc.rowChart($(this)[0]);
 			$(this).data('chart', chart);
 			var height;
@@ -432,11 +500,11 @@
 				chart.width($(this).parents('.panel').width());
 			}).trigger('resize');
 
-			var dimension = filter.dimension(options.dim);
+			var dimension = filter.dimension(function(d){return d.zip;});
 			var group = {
 				all: function(){return this.__proto__.top(Math.floor(height/25))},
 				top: function(){return this.__proto__.top(Math.floor(height/25))},
-				__proto__: dimension.group()
+				__proto__: dimension.group().reduceCount(function(d){return d.starbucks_count})
 			}
 
 			var opts = options.chartOpts;
@@ -477,11 +545,11 @@
 			var height = $chart.height();
 			var width = $chart.parents('.panel').width()
 
-			var dimension = filter.dimension(options.dim);
+			var dimension = filter.dimension(function(d){return d.zip});
 			var group = {
 				// all: function(){return this.__proto__.top(Math.floor(height/25))},
 				// top: function(){return this.__proto__.top(Math.floor(height/25))},
-				__proto__: dimension.group()
+				__proto__: dimension.group().reduceSum(function(d){return d.HC01_VC03})
 			}
 
 			var opts = options.chartOpts;
