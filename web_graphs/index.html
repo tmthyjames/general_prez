@@ -31,9 +31,6 @@
 			border: #D6D5D5 solid 2px;
 			cursor: default;
 		}
-		#heatMap {
-			height: 405px;
-		}
 		.legend {
 		    line-height: 18px;
 		    color: #555;
@@ -142,7 +139,15 @@
 		tr{
 			overflow: hidden;
 		}
-
+		#heatMap {
+			height: 305px;
+		}
+		.panel-top{
+			height: 350px;
+		}
+		.panel-bottom{
+			height: 355px;
+		}
 	</style>
 
 	<div class="panel panel-default">
@@ -158,9 +163,10 @@
 			<div class="" id="map"></div>
 		</div>
 	</div>
+
 <div class="row addTopMargin">
 	<div class="col-sm-5 grouping">
-	    <div class="panel panel-default" style="height:450px;">
+	    <div class="panel panel-default panel-top">
 	        <div class="panel-heading">
 	        <!-- /.panel-heading -->
 	        <a class="btn-default btn btn-md pull-right reset"><span class="fa fa-reply"></span></a>
@@ -188,7 +194,7 @@
 	</div>
 	<div class="col-sm-3 grouping">
 		<div class="row-fluid">
-	        <div class="panel panel-default" style="height:450px;">
+	        <div class="panel panel-default panel-top">
 	            <div class="panel-heading">
 	            	<a class="btn-default btn btn-md pull-right reset"><span class="fa fa-reply"></span></a>
 		            <ul class="nav nav-pills">
@@ -214,7 +220,7 @@
     </div>
 
 	<div class="col-sm-4 grouping">
-        <div class="panel panel-default" style="height:450px;" id="topRight">
+        <div class="panel panel-default panel-top" id="topRight">
             <div class="panel-heading">
             	<a class="btn-default btn btn-md pull-right reset"><span class="fa fa-reply"></span></a>
 	            <ul class="nav nav-pills">
@@ -228,6 +234,23 @@
         </div>
     </div>
 
+</div>
+
+<div class="row">
+	<div class="col-sm-12 grouping">
+        <div class="panel panel-default panel-bottom">
+            <div class="panel-heading">
+            	<a class="btn-default btn btn-md pull-right reset"><span class="fa fa-reply"></span></a>
+	            <ul class="nav nav-pills">
+	                <li class="active"><a href="#composite-pills" data-toggle="tab" aria-expanded="false">Scatter</a>
+	                </li>
+	            </ul>
+            </div>
+            <div class="panel-body">
+                <div class="composite dc-graph" id="scatterChart"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 	<script>
@@ -255,6 +278,8 @@
 		    }
 		    return color;
 		}
+
+		scatterChart = dc.bubbleChart('#scatterChart');
 
 		var filter = crossfilter([]);
 
@@ -287,8 +312,6 @@
 			method: 'GET'
 		})
 		.done(function(data){
-
-			console.log(data);
 
 			filter.add(data.data);
 			allDim = filter.dimension(function(d){return d});
@@ -438,6 +461,100 @@
 			});
 
 
+			// var reduceAdd = function(p,v) {
+			// 	p.page_views += 1;
+			// 	if (!p.active_users[v.email]) {
+			// 		p.active_users[v.email] = 1;
+			// 	} else { p.active_users[v.email] += 1 }
+			// 	return p;
+			// };
+			// var reduceRemove = function(p,v) {
+			// 	p.active_users[v.email] -= 1;
+			// 	p.page_views -= 1;
+			// 	if (p.active_users[v.email] < 0.001) {
+			// 		delete p.active_users[v.email];
+			// 	}
+			// 	return p;
+			// };
+			// var reduceInitial = function() { 
+			// 	return { active_users: {}, page_views: 0}
+			// }
+
+
+			var reduceAdd = function(p, v) {
+				p.population_density = v.population_density;
+				p.HC01_VC103 = v.HC01_VC103;
+				p.HC01_VC03 = v.HC01_VC03;
+				return p;
+			};
+			// remove
+			var reduceRemove = function(p, v) {
+				p.population_density = v.population_density;
+				p.HC01_VC103 = v.HC01_VC103;
+				p.HC01_VC03 = v.HC01_VC03;
+				return p;
+			};
+			// init
+			var reduceInitial = function(p, v) {
+				return {
+					population_density: 0,
+					HC01_VC103: 0,
+					HC01_VC03: 0,
+					zipcodes: {}
+				};
+			};
+
+	        zipdim = filter.dimension(function(d){return d.zip})
+
+			var group = {
+				all: function(){return this.__proto__.top(Math.floor(315/25))},
+				top: function(){return this.__proto__.top(Math.floor(315/25))},
+				__proto__: allDim.group().reduce(reduceAdd, reduceRemove, reduceInitial)
+			}
+
+			scatterChart
+				.width(1274)
+				.height(315)
+				.margins({
+					top: 0,
+					right: 0,
+					bottom: 45,
+					left: 45
+				})
+				.dimension(allDim)
+				.group(group)
+				.transitionDuration(750)
+				.colors(d3.scale.category10())
+				.x(d3.scale.linear().domain([0, 2000]))
+				.y(d3.scale.linear().domain([0, 8600]))
+				.r(d3.scale.linear().domain([0, 1000]))
+				.keyAccessor(function(p) {
+					return p.value.HC01_VC03;
+				})
+				.valueAccessor(function(p) {
+					return p.value.HC01_VC103;
+				})
+				.radiusValueAccessor(function(p) {
+					console.log(p);
+					return Math.sqrt(p.value.population_density);
+				})
+				.transitionDuration(750)
+				.elasticY(true)
+				.yAxisPadding(100)
+				.xAxisPadding(150)
+				.yAxisLabel("Avg")
+				.xAxisLabel("Shared")
+				.label(function(p) {
+					return p.key.zip;
+				})
+				.title(function(d) {
+					return d.key.zip;
+				})
+				.renderTitle(true)
+				.renderLabel(true);
+
+			scatterChart.render();
+
 		    var heatMap = L.map('heatMap');
 		    heatMap.setView([36.166294, -86.780357], 6);
 		    var cleanMap = true;
@@ -471,7 +588,6 @@
 			};
 
 			drawMap();
-			console.log(data.data.filter(function(d){return d.zipcode == 38119;}));
 
 	        for (var i = 0; i < dc.chartRegistry.list().length; i++) {
 	            var chartI = dc.chartRegistry.list()[i];
