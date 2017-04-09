@@ -172,7 +172,7 @@
 	                    <div chart class="chart dc-graph" 
 		                    type="rowChart"
 	                    	id="page"
-	                    	dimension="return d.zipcode" 
+	                    	dimension="return d.num_of_sb" 
 	                    	opts='{ "colors": "#6baed6", "elasticX": true, "labelOffsetY": 10, "xAxis": {"ticks": 6} }'>
 	                    </div>
 	                </div>
@@ -269,8 +269,8 @@
 		})
 		.done(function(data){
 
-			console.log(data);
 			filter.add(data.data);
+			console.log(data.data);
 
 			var layer = 'HC01_VC03';
 			var layerGroup = new L.layerGroup()
@@ -383,7 +383,7 @@
 			$('div[type="pieChart"').each(function(i,v){
 				var $chart = $(this);
 				var $panel = $chart.closest('.grouping').find('.panel-body');
-				var height = $panel.height();
+				var height = 300;
 				var width = $panel.width();
 				var attrs = $chart[0].attributes;
 				var chartType = attrs.type.value;
@@ -391,9 +391,7 @@
 
 				$chart[chartType]({
 					filter: filter,
-					dim: function(d){
-						return (d.section);
-					},
+					dim: dimension,
 					chartOpts: {
 						innerRadius: height/3.8,
 						slicesCap: 8, 
@@ -481,8 +479,8 @@
 
 			var dimension = filter.dimension(options.dim);
 			var group = {
-				all: function(){return this.__proto__.top(Math.floor(height/25))},
-				top: function(){return this.__proto__.top(Math.floor(height/25))},
+				// all: function(){return this.__proto__.top(Math.floor(height/25))},
+				// top: function(){return this.__proto__.top(Math.floor(height/25))},
 				__proto__: dimension.group()
 			}
 
