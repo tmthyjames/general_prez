@@ -109,27 +109,6 @@
 	      noVac3: ["#f7fcb9"]
 	    }
 
-		// var stamenAttribution = 'Map tiles by <a href="//stamen.com" target="_blank">Stamen Design</a>, under <a href="//creativecommons.org/licenses/by/3.0" target="_blank">CC BY 3.0</a>. Data by <a href="//openstreetmap.org" target="_blank">OpenStreetMap</a>, under <a href="//creativecommons.org/licenses/by-sa/3.0" target="_blank">CC BY SA</a>';
-		// var openStreetMapAttribution = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>';
-
-		// var tileOptions = {
-		// 	maxZoom: 19,
-		// 	subdomains: ['a','b','c']
-	 //    };
-
-		// var baseLayer = new L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', $.extend({attribution: stamenAttribution}, tileOptions));
-	    // var streets = new L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', $.extend({attribution: openStreetMapAttribution}, tileOptions));
-
-		// var baseMaps = {
-		// 	"Grayscale": baseLayer,
-		// 	"Streets": streets
-		// };
-
-		// var map = new L.map('map', {
-		// 	zoom: 4,
-		// 	layers: [baseMaps["Streets"]]
-		// });
-
 		var map = new L.map('map', {
 			center: [35.700275, -86.787130],
 		    zoom: 8,
@@ -142,7 +121,6 @@
 		});  
 		map.scrollWheelZoom.disable();
 
-
 		$.ajax({
 			url: 'data_sample_Nashville.json',
 			method: 'GET'
@@ -153,6 +131,8 @@
 			var fullMarket = [];
 			var keys = Object.keys(data.geojson);
 			$('.geo-heading')[0].innerHTML = 'Choropleth Map - ' + data.dataDef[layer]
+			var layers = {};
+			var currentLayer;
 			for (var i in keys){
 				options = {
 					color: '#999',
@@ -160,9 +140,10 @@
 				    weight: 1,
 				    opacity: 1,
 				    fillOpacity: 0.6,
-				    dashArray: '5'
+				    // dashArray: '5'
 				}
 				var polyLayer = L.geoJson(JSON.parse(data.geojson[keys[i]].the_geom), options);
+				layers[keys[i]] = polyLayer;
 				polyLayer.addTo(map);
 
 				if (data.geojson[keys[i]].starbucks_count >= 2){
@@ -215,15 +196,23 @@
 						else return '#fd8d3c';
 					}
 				})
-				// .color({
-				// 	heatmap: colorScale,
-				// 	value: c
-				// })
 				.tooltip({
 					value: [zipcode],
 					html: function(d){
+						if (currentLayer){
+							currentLayer.setStyle({
+								color: '#999',
+								weight: 1
+							})
+						}
 						var zipcode = String(d);
 						var key = '0'.repeat(5 - zipcode.length) + zipcode;
+						currentLayer = layers[d];
+						currentLayer.setStyle({
+							color: 'white',
+							weight: 5
+						})
+						map.setView(currentLayer.getBounds().getCenter(), 12);
 						return d;
 					}
 				})
