@@ -15,6 +15,9 @@
 	<script src="libs/leaflet.min.js"></script>
 	<script src="libs/leaflet.groupedlayercontrol.min.js"></script>
 	<script src="libs/leaflet-polygon.fillPattern.js"></script>
+	<script src="libs/crossfilter.min.js"></script>
+	<script src="libs/dc.min.js"></script>
+	<script src="libs/dc.patches.js"></script>
 
 </head>
 <body>
@@ -56,6 +59,86 @@
 		.panel{
 			margin: 10px;
 		}
+		.modal-xl {
+			width: 99%;
+			max-width:1500px;
+			margin-bottom: 50px;
+		}
+		.addTopMargin {
+			margin-top: 0.75%;
+		}
+
+		.chart {
+			height: 58%;
+		}
+		.account{
+			height: 43%;
+		}
+		.brands{
+			height: 58%;
+			width: 100%;
+		}
+		.composite{
+			height: 27%;
+		}
+		.table {
+			height: 8.7%;
+		}
+		#views, #users, #avg{
+		    font-size: 3em;
+		    text-align: center;
+		    float:right;
+			display: table-cell;
+			vertical-align: middle;
+		}
+		.dc-chart g.row text{
+			fill: #131313;
+		}
+		.nav-pills > li > a, .panel-heading > .pull-right.btn {
+		    padding: 5px 10px;
+		}
+		.panel-body {
+		     padding: 2px; 
+		}
+		.panel-heading {
+		    padding: 4px 5px;
+		    border-bottom: 1px solid transparent;
+		    border-top-left-radius: 1px;
+		    border-top-right-radius: 1px;
+		}
+		h6 {
+		    margin-top: 6px;
+		    margin-bottom: 6px;
+		}
+		.grouping{
+			padding-right:7px;
+			padding-left: 7px;
+		}
+		.panel {
+			border-radius: 1px;
+			margin-bottom: 10px
+		}
+		#page-wrapper {
+		    padding: 0 0px;
+		}
+		.container {
+		    width: 100%;
+		}
+		.tab-content > .tab-pane:not(.active),
+		.pill-content > .pill-pane:not(.active) {
+		    display: block;
+		    height: 0;
+		    width: 0;
+		    overflow-y: hidden;
+		    overflow-x: hidden;
+		} 
+		.autoDismiss{
+			margin-top: 10px;
+		}
+		tr{
+			overflow: hidden;
+		}
+
 	</style>
 
 	<div class="panel panel-default">
@@ -71,6 +154,62 @@
 			<div class="" id="map"></div>
 		</div>
 	</div>
+<div class="row addTopMargin">
+	<div class="col-sm-5 grouping">
+	    <div class="panel panel-default" style="height:450px;">
+	        <div class="panel-heading">
+	        <!-- /.panel-heading -->
+	        <a class="btn-default btn btn-md pull-right reset"><span class="fa fa-reply"></span></a>
+	            <ul class="nav nav-pills">
+	                <li class="active"><a href="#page-pills" data-toggle="tab" aria-expanded="false">Page</a>
+	                </li>
+	            </ul>
+            </div>
+	        <div class="panel-body">
+	            <!-- Tab panes -->
+	            <div class="tab-content">
+	                <div class="tab-pane fade active in" id="page-pills">
+	                    <div chart class="chart dc-graph" 
+		                    type="rowChart"
+	                    	id="page"
+	                    	dimension="return d.zipcode" 
+	                    	opts='{ "colors": "#6baed6", "elasticX": true, "labelOffsetY": 10, "xAxis": {"ticks": 6} }'>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	        <!-- /.panel-body -->
+	    </div>
+	    <!-- /.panel -->
+	</div>
+	<div class="col-sm-3 grouping">
+		<div class="row-fluid">
+	        <div class="panel panel-default" style="height:450px;">
+	            <div class="panel-heading">
+	            	<a class="btn-default btn btn-md pull-right reset"><span class="fa fa-reply"></span></a>
+		            <ul class="nav nav-pills">
+		                <li class="active"><a href="#account-pills" data-toggle="tab" aria-expanded="false">Section</a>
+		                </li>
+		            </ul>
+	            </div>
+	            <div class="panel-body">
+		            <div class="tab-content">
+		                <div class="tab-pane fade active in" id="account-pills">
+		                    <div chart type="pieChart" 
+		                    	class="account dc-graph" 
+		                    	id="account"
+		                    	dimension="return d.has_starbucks"
+		                    	opts='{ "innerRadius": height/6.5, "slicesCap": 8, "externalLabels": 1000000000, "externalRadiusPadding": 45, "drawPaths": false, "legend": dc.legend(), "cx": 165, "cy": 180 }'
+		                    	resizeOpts='{ "height": function(h){return h}, "width": function(w){return w}, "innerRadius": function(h){return h/3.8}, "externalRadiusPadding": 30, "cx": function(w){return w/1.8}, "cy": function(h){return h/1.7} }'>
+		                    </div>
+		                </div>
+		            </div>
+	            </div>
+	        </div>
+	    </div>
+    </div>
+
+</div>
 
 	<script>
 
@@ -98,15 +237,18 @@
 		    return color;
 		}
 
+		var filter = crossfilter([]);
+
+
 	    var vacColorScale = {
-	      vac: ["#004529"],
-	      vac1: ["#006837"],
-	      vac2: ["#238443"],
-	      vac3: ["#41ab5d"],
-	      noVac: ["#78c679"],
-	      noVac1: ["#addd8e"],
-	      noVac2: ["#d9f0a3"],
-	      noVac3: ["#f7fcb9"]
+	      vac: ["#08306b"],
+	      vac1: ["#08519c"],
+	      vac2: ["#2171b5"],
+	      vac3: ["#4292c6"],
+	      noVac: ["#6baed6"],
+	      noVac1: ["#9ecae1"],
+	      noVac2: ["#c6dbef"],
+	      noVac3: ["#deebf7"]
 	    }
 
 		var map = new L.map('map', {
@@ -126,6 +268,10 @@
 			method: 'GET'
 		})
 		.done(function(data){
+
+			console.log(data);
+			filter.add(data.data);
+
 			var layer = 'HC01_VC03';
 			var layerGroup = new L.layerGroup()
 			var fullMarket = [];
@@ -135,12 +281,11 @@
 			var currentLayer;
 			for (var i in keys){
 				options = {
-					color: '#999',
+					color: 'black',
 				    fillColor: getColor(data.geojson[keys[i]][layer + '_pct']),
-				    weight: 1,
+				    weight: 0.4,
 				    opacity: 1,
-				    fillOpacity: 0.6,
-				    // dashArray: '5'
+				    fillOpacity: 0.6
 				}
 				var polyLayer = L.geoJson(JSON.parse(data.geojson[keys[i]].the_geom), options);
 				layers[keys[i]] = polyLayer;
@@ -180,10 +325,6 @@
 					[x]:"median",
 					[y]:"median"
 				})
-				.title(title)
-				.title({
-					sub: "Size: " + data.dataDef[s]
-				})
 				.ui([
 					{
 						"method" : "size",
@@ -192,28 +333,28 @@
 				])
 				.color({
 					value: function(d){
-						if (d.has_starbucks) return '#3182bd';
-						else return '#fd8d3c';
+						var zipcode = data.geojson[d.zipcode];
+						if (zipcode) {
+							return getColor(zipcode[layer + '_pct'])
+						} else {return '#08306b';}
 					}
 				})
-				.tooltip({
-					value: [zipcode],
-					html: function(d){
+				.mouse({
+					click: function(d){
 						if (currentLayer){
 							currentLayer.setStyle({
 								color: '#999',
 								weight: 1
 							})
 						}
-						var zipcode = String(d);
+						var zipcode = String(d.zipcode);
 						var key = '0'.repeat(5 - zipcode.length) + zipcode;
-						currentLayer = layers[d];
+						currentLayer = layers[d.zipcode];
 						currentLayer.setStyle({
 							color: 'white',
 							weight: 5
 						})
 						map.setView(currentLayer.getBounds().getCenter(), 12);
-						return d;
 					}
 				})
 				.x({
@@ -225,9 +366,164 @@
 					label: data.dataDef[y]
 				})
 				.draw()
+
+			$('div[type="rowChart"]').each(function(i,v){
+				var $chart = $(this);
+				var attrs = $chart[0].attributes;
+				var fnDim = new Function('d', attrs.dimension.value);
+				var chartOpts = JSON.parse(attrs.opts.value);
+				var chartType = attrs.type.value;
+				$chart[chartType]({
+					filter: filter,
+					dim: fnDim,
+					chartOpts: chartOpts
+				});
+			});
+
+			$('div[type="pieChart"').each(function(i,v){
+				var $chart = $(this);
+				var $panel = $chart.closest('.grouping').find('.panel-body');
+				var height = $panel.height();
+				var width = $panel.width();
+				var attrs = $chart[0].attributes;
+				var chartType = attrs.type.value;
+				var dimension = new Function('d', attrs.dimension.value);
+
+				$chart[chartType]({
+					filter: filter,
+					dim: function(d){
+						return (d.section);
+					},
+					chartOpts: {
+						innerRadius: height/3.8,
+						slicesCap: 8, 
+						externalLabels: 1000000000,
+						externalRadiusPadding: 23,
+						drawPaths: false,
+						legend: dc.legend(),
+						cx: width/1.8,
+						cy: height/1.7,
+						height: height,
+						width: width
+					},
+					resizeOpts: {
+						height: function(h){return h},
+						width: function(w){return w},
+						innerRadius: function(h){return h/3.8},
+						externalRadiusPadding: 23,
+						cx: function(w){return w/1.8},
+						cy: function(h){return h/1.7}
+					}
+				});
+
+			});
+
 		})
 		.fail(function(xhr, err){
 			console.log(xhr, err);
 		});
+
+
+		$.fn.rowChart = function(options){
+			var chart = dc.rowChart($(this)[0]);
+			$(this).data('chart', chart);
+			var height;
+
+			$(this).closest('.chart').resize(function() {
+				chart.height(height = $(this).parents('.panel').height()-38);
+				chart.width($(this).parents('.panel').width());
+			}).trigger('resize');
+
+			var dimension = filter.dimension(options.dim);
+			var group = {
+				all: function(){return this.__proto__.top(Math.floor(height/25))},
+				top: function(){return this.__proto__.top(Math.floor(height/25))},
+				__proto__: dimension.group()
+			}
+
+			var opts = options.chartOpts;
+			chart.dimension(dimension).group(group);
+
+			Object.keys(opts).forEach(function(opt){
+				var val = opts[opt];
+				if (typeof val === 'object'){
+					var chain = chart[opt]();
+					Object.keys(val).forEach(function(key){
+						chain[key](val[key]);
+					});
+				} else {
+					chart[opt](opts[opt]);
+				}
+			});
+
+			chart.xAxis(d3.scale.log());
+
+			chart.ordering(function(d){ return -d.value; });
+
+			var $chart = $(this);
+			window.addEventListener("resize", function() {
+				height = $chart.closest('.grouping').find('.tab-pane.active').children('.dc-chart').height()
+				chart.height(height);
+				chart.width($chart.parents('.panel').width());
+				chart.redraw();
+			});
+			chart.render();
+			return this;
+
+		};
+
+		$.fn.pieChart = function(options){
+			var $chart = $(this);
+			var chart = dc.pieChart($chart[0]);
+			$(this).data('chart', chart);
+			var height = $chart.height();
+			var width = $chart.parents('.panel').width()
+
+			var dimension = filter.dimension(options.dim);
+			var group = {
+				all: function(){return this.__proto__.top(Math.floor(height/25))},
+				top: function(){return this.__proto__.top(Math.floor(height/25))},
+				__proto__: dimension.group()
+			}
+
+			var opts = options.chartOpts;
+			var resizeOpts = options.resizeOpts;
+
+			chart.dimension(dimension).group(group);
+
+			Object.keys(opts).forEach(function(opt){
+				var val = opts[opt];
+				if (typeof val === 'object' && chain){
+					var chain = chart[opt]();
+					Object.keys(val).forEach(function(key){
+						chain[key](val[key]);
+					});
+				} else {
+					chart[opt](opts[opt]);
+				}
+			});
+
+			window.addEventListener("resize", function() {
+				var $panel = $chart.closest('.grouping').find('.panel-body');
+				var height = $panel.height();
+				var width = $panel.width();
+
+				chart
+					.height(resizeOpts['height'](height))
+					.width(resizeOpts['width'](width))
+					.innerRadius(resizeOpts['innerRadius'](height))
+					.externalRadiusPadding(resizeOpts.externalRadiusPadding);
+
+				chart
+					.cy(resizeOpts['cy'](height))
+					.cx(resizeOpts['cx'](width));
+
+				chart.redraw();
+			});
+
+			chart.render();
+			return this;
+		}
+
 	</script>
 </body>
