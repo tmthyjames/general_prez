@@ -152,7 +152,7 @@
 		#education-attainment, #box-HC03_VC88, 
 		#box-HC03_VC96, #box-shop,
 		#box-home {
-			height: 500px;
+			height: 800px;
 		}
 	</style>
 
@@ -178,28 +178,28 @@
 	</div>
 
 	<div class="panel panel-default">
-		<div class="panel-heading">Number of Shopping Centers</div>
+		<div class="panel-heading">Number of Hotels</div>
 		<div class="panel-body">
 			<div id="box-shop"></div>
 		</div>
 	</div>
 
 	<div class="panel panel-default">
-		<div class="panel-heading">Scatter</div>
+		<div class="panel-heading">High School Diploma versus Bachelor's Degree</div>
 		<div class="panel-body">
 			<div id="education-attainment"></div>
 		</div>
 	</div>
 
 	<div class="panel panel-default">
-		<div class="geo-heading panel-heading">Choropleth Map</div>
+		<div class="geo-heading panel-heading">Plenty of Opportunity in the Tennessee Market</div>
 		<div class="panel-body">
 			<div class="" id="map"></div>
 		</div>
 	</div>
 
 	<div class="panel panel-default">
-		<div class="panel-heading">Scatter</div>
+		<div class="panel-heading">Hotels versus New Homes</div>
 		<div class="panel-body">
 			<div id="population-business-density"></div>
 		</div>
@@ -277,7 +277,7 @@
 			var layerGroup = new L.layerGroup()
 			var fullMarket = [];
 			var keys = Object.keys(data.geojson);
-			$('.geo-heading')[0].innerHTML = 'Choropleth Map - ' + data.dataDef[layer]
+			// $('.geo-heading')[0].innerHTML = 'Choropleth Map - ' + data.dataDef[layer]
 			var layers = {};
 			var currentLayer;
 			for (var i in keys){
@@ -372,7 +372,7 @@
 			var layerGroup = new L.layerGroup()
 			var fullMarket = [];
 			var keys = Object.keys(data.geojson);
-			$('.geo-heading')[0].innerHTML = 'Choropleth Map - ' + data.dataDef[layer]
+			// $('.geo-heading')[0].innerHTML = 'Choropleth Map - ' + data.dataDef[layer]
 
 			var x = 'new_homes',
 				y = 'hotels'
@@ -515,7 +515,7 @@
 					})
 					.id("zip")
 					.x('has_starbucks')
-					.y("shopping_centers")
+					.y("hotels")
 					.color({
 						value: function(d){
 							var zipcode = data.geojson[d.zip];
