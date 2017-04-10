@@ -54,7 +54,7 @@
 			padding: 6px 8px;
 			padding: 6px 8px;
 		}
-		.row1, #viz {
+		.row1, #population-business-density, #education-attainment {
 			height: 500px;
 		}
 		.panel{
@@ -153,7 +153,7 @@
 	<div class="panel panel-default">
 		<div class="panel-heading">Scatter</div>
 		<div class="panel-body">
-			<div id="viz"></div>
+			<div id="education-attainment"></div>
 		</div>
 	</div>
 
@@ -161,6 +161,13 @@
 		<div class="geo-heading panel-heading">Choropleth Map</div>
 		<div class="panel-body">
 			<div class="" id="map"></div>
+		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">Scatter</div>
+		<div class="panel-body">
+			<div id="population-business-density"></div>
 		</div>
 	</div>
 
@@ -313,9 +320,14 @@
 		})
 		.done(function(data){
 
-			filter.add(data.data);
+			data.d3viz = Object.keys(data.geojson).map(function(d){
+				return data.geojson[d];
+			});
+
+			filter.add(data.d3viz);
 			allDim = filter.dimension(function(d){return d.zip});
 
+			console.log(data.d3viz)
 			var layer = 'HC01_VC03';
 			var layerGroup = new L.layerGroup()
 			var fullMarket = [];
@@ -347,14 +359,14 @@
 				y = 'HC03_VC96'
 				c = 'num_of_sb',
 				colorScale = ["#337ab7", "#63a0d4", "#9fc5e5", "#dbe9f5", "#f9e2e2", "#f4cecd", "#e7908e", "#d9534f"],
-				s = 'sb_per_capita',
-				zipcode = "zipcode",
+				s = 'starbucks_count',
+				zipcode = "zip",
 				title = "The General - Coffee",
 				groups = [zipcode];
 
 			var visualization = d3plus.viz()
-				.container("#viz")
-				.data(data.d3data)
+				.container("#education-attainment")
+				.data(data.d3viz)
 				.type("scatter")
 				.id(groups)
 				.order({
@@ -377,7 +389,7 @@
 				])
 				.color({
 					value: function(d){
-						var zipcode = data.geojson[d.zipcode];
+						var zipcode = data.geojson[d.zip];
 						if (zipcode) {
 							return getColor(zipcode[layer + '_pct'])
 						} else {return '#08306b';}
@@ -391,9 +403,85 @@
 								weight: 1
 							})
 						}
-						var zipcode = String(d.zipcode);
+						var zipcode = String(d.zip);
+						console.log(zipcode, zipcode.length, d.zip);
 						var key = '0'.repeat(5 - zipcode.length) + zipcode;
-						currentLayer = layers[d.zipcode];
+						currentLayer = layers[d.zip];
+						currentLayer.setStyle({
+							color: 'white',
+							weight: 5
+						})
+						map.setView(currentLayer.getBounds().getCenter(), 12);
+					}
+				})
+				.x({
+					value: x,
+					label: data.dataDef[x]
+				})
+				.y({
+					value: y,
+					label: data.dataDef[y]
+				})
+				.draw()
+
+			var layer = 'HC01_VC03';
+			var layerGroup = new L.layerGroup()
+			var fullMarket = [];
+			var keys = Object.keys(data.geojson);
+			$('.geo-heading')[0].innerHTML = 'Choropleth Map - ' + data.dataDef[layer]
+
+			var x = 'new_homes',
+				y = 'hotels'
+				c = 'num_of_sb',
+				colorScale = ["#337ab7", "#63a0d4", "#9fc5e5", "#dbe9f5", "#f9e2e2", "#f4cecd", "#e7908e", "#d9534f"],
+				s = 'starbucks_count',
+				zipcode = "zip",
+				title = "The General - Coffee",
+				groups = [zipcode];
+
+			var visualization = d3plus.viz()
+				.container("#population-business-density")
+				.data(data.d3viz)
+				.type("scatter")
+				.id(groups)
+				.order({
+					sort: "asc"
+				})
+				.size({
+					value: function(d){
+						return d[s]
+					}
+				})
+				.aggs({
+					[x]:"median",
+					[y]:"median"
+				})
+				.ui([
+					{
+						"method" : "size",
+						"value"  : [s, "HC01_VC03", "num_of_sb"]
+					}
+				])
+				.color({
+					value: function(d){
+						var zipcode = data.geojson[d.zip];
+						if (zipcode) {
+							return getColor(zipcode[layer + '_pct'])
+						} else {return '#08306b';}
+					}
+				})
+				.mouse({
+					click: function(d){
+						if (currentLayer){
+							currentLayer.setStyle({
+								color: '#999',
+								weight: 1
+							})
+						}
+						var zipcode = String(d.zip);
+						console.log(zipcode, zipcode.length, d.zip);
+						var key = '0'.repeat(5 - zipcode.length) + zipcode;
+						currentLayer = layers[d.zip];
 						currentLayer.setStyle({
 							color: 'white',
 							weight: 5
@@ -664,11 +752,11 @@
 			var height = $chart.height();
 			var width = $chart.parents('.panel').width()
 
-			var dimension = filter.dimension(function(d){return d.zip});
+			var dimension = filter.dimension(function(d){return d.State});
 			var group = {
 				// all: function(){return this.__proto__.top(Math.floor(height/25))},
 				// top: function(){return this.__proto__.top(Math.floor(height/25))},
-				__proto__: allDim.group().reduceSum(function(d){return d.HC01_VC03})
+				__proto__: dimension.group().reduceSum(function(d){return d.HC01_VC03})
 			}
 
 			var opts = options.chartOpts;
