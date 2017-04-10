@@ -148,7 +148,41 @@
 		.panel-bottom{
 			height: 355px;
 		}
+		.row1, #population-business-density, 
+		#education-attainment, #box-HC03_VC88, 
+		#box-HC03_VC96, #box-shop,
+		#box-home {
+			height: 500px;
+		}
 	</style>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">Percent bachelor's degree or higher</div>
+		<div class="panel-body">
+			<div id="box-HC03_VC96"></div>
+		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">Population 25 years and over - High school graduate</div>
+		<div class="panel-body">
+			<div id="box-HC03_VC88"></div>
+		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">Number of New Homes</div>
+		<div class="panel-body">
+			<div id="box-home"></div>
+		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">Number of Shopping Centers</div>
+		<div class="panel-body">
+			<div id="box-shop"></div>
+		</div>
+	</div>
 
 	<div class="panel panel-default">
 		<div class="panel-heading">Scatter</div>
@@ -171,94 +205,6 @@
 		</div>
 	</div>
 
-<div class="row addTopMargin">
-	<div class="col-sm-5 grouping">
-	    <div class="panel panel-default panel-top">
-	        <div class="panel-heading">
-	        <!-- /.panel-heading -->
-	        <a class="btn-default btn btn-md pull-right reset"><span class="fa fa-reply"></span></a>
-	            <ul class="nav nav-pills">
-	                <li class="active"><a href="#page-pills" data-toggle="tab" aria-expanded="false">Page</a>
-	                </li>
-	            </ul>
-            </div>
-	        <div class="panel-body">
-	            <!-- Tab panes -->
-	            <div class="tab-content">
-	                <div class="tab-pane fade active in" id="page-pills">
-	                    <div chart class="chart dc-graph" 
-		                    type="rowChart"
-	                    	id="page"
-	                    	dimension="return d.zipcode" 
-	                    	opts='{ "colors": "#6baed6", "elasticX": true, "labelOffsetY": 10, "xAxis": {"ticks": 6} }'>
-	                    </div>
-	                </div>
-	            </div>
-	        </div>
-	        <!-- /.panel-body -->
-	    </div>
-	    <!-- /.panel -->
-	</div>
-	<div class="col-sm-3 grouping">
-		<div class="row-fluid">
-	        <div class="panel panel-default panel-top">
-	            <div class="panel-heading">
-	            	<a class="btn-default btn btn-md pull-right reset"><span class="fa fa-reply"></span></a>
-		            <ul class="nav nav-pills">
-		                <li class="active"><a href="#account-pills" data-toggle="tab" aria-expanded="false">Section</a>
-		                </li>
-		            </ul>
-	            </div>
-	            <div class="panel-body">
-		            <div class="tab-content">
-		                <div class="tab-pane fade active in" id="account-pills">
-		                    <div chart type="pieChart" 
-		                    	class="account dc-graph" 
-		                    	id="account"
-		                    	dimension="return d.has_starbucks"
-		                    	opts='{ "innerRadius": height/6.5, "slicesCap": 8, "externalLabels": 1000000000, "externalRadiusPadding": 45, "drawPaths": false, "legend": dc.legend(), "cx": 165, "cy": 180 }'
-		                    	resizeOpts='{ "height": function(h){return h}, "width": function(w){return w}, "innerRadius": function(h){return h/3.8}, "externalRadiusPadding": 30, "cx": function(w){return w/1.8}, "cy": function(h){return h/1.7} }'>
-		                    </div>
-		                </div>
-		            </div>
-	            </div>
-	        </div>
-	    </div>
-    </div>
-
-	<div class="col-sm-4 grouping">
-        <div class="panel panel-default panel-top" id="topRight">
-            <div class="panel-heading">
-            	<a class="btn-default btn btn-md pull-right reset"><span class="fa fa-reply"></span></a>
-	            <ul class="nav nav-pills">
-	                <li class="active"><a href="#account-pills" data-toggle="tab" aria-expanded="false">Section</a>
-	                </li>
-	            </ul>
-            </div>
-            <div class="panel-body">
-            	<div id="heatMap"></div>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<div class="row">
-	<div class="col-sm-12 grouping">
-        <div class="panel panel-default panel-bottom">
-            <div class="panel-heading">
-            	<a class="btn-default btn btn-md pull-right reset"><span class="fa fa-reply"></span></a>
-	            <ul class="nav nav-pills">
-	                <li class="active"><a href="#composite-pills" data-toggle="tab" aria-expanded="false">Scatter</a>
-	                </li>
-	            </ul>
-            </div>
-            <div class="panel-body">
-                <div class="composite dc-graph" id="scatterChart"></div>
-            </div>
-        </div>
-    </div>
-</div>
 
 	<script>
 
@@ -327,7 +273,6 @@
 			filter.add(data.d3viz);
 			allDim = filter.dimension(function(d){return d.zip});
 
-			console.log(data.d3viz)
 			var layer = 'HC01_VC03';
 			var layerGroup = new L.layerGroup()
 			var fullMarket = [];
@@ -404,7 +349,6 @@
 							})
 						}
 						var zipcode = String(d.zip);
-						console.log(zipcode, zipcode.length, d.zip);
 						var key = '0'.repeat(5 - zipcode.length) + zipcode;
 						currentLayer = layers[d.zip];
 						currentLayer.setStyle({
@@ -479,7 +423,6 @@
 							})
 						}
 						var zipcode = String(d.zip);
-						console.log(zipcode, zipcode.length, d.zip);
 						var key = '0'.repeat(5 - zipcode.length) + zipcode;
 						currentLayer = layers[d.zip];
 						currentLayer.setStyle({
@@ -499,197 +442,267 @@
 				})
 				.draw()
 
-			$('div[type="rowChart"]').each(function(i,v){
-				var $chart = $(this);
-				var attrs = $chart[0].attributes;
-				var fnDim = new Function('d', attrs.dimension.value);
-				var chartOpts = JSON.parse(attrs.opts.value);
-				var chartType = attrs.type.value;
-				$chart[chartType]({
-					filter: filter,
-					dim: fnDim,
-					chartOpts: chartOpts
-				}, data);
-			});
-
-			$('div[type="pieChart"').each(function(i,v){
-				var $chart = $(this);
-				var $panel = $chart.closest('.grouping').find('.panel-body');
-				var height = 300;
-				var width = $panel.width();
-				var attrs = $chart[0].attributes;
-				var chartType = attrs.type.value;
-				var dimension = new Function('d', attrs.dimension.value);
-
-				$chart[chartType]({
-					filter: filter,
-					dim: dimension,
-					chartOpts: {
-						innerRadius: height/3.8,
-						slicesCap: 8, 
-						externalLabels: 1000000000,
-						externalRadiusPadding: 23,
-						drawPaths: false,
-						legend: dc.legend(),
-						cx: width/1.8,
-						cy: height/1.7,
-						height: height,
-						width: width,
-						colors: d3.scale.category20c()
-					},
-					resizeOpts: {
-						height: function(h){return h},
-						width: function(w){return w},
-						innerRadius: function(h){return h/3.8},
-						externalRadiusPadding: 23,
-						cx: function(w){return w/1.8},
-						cy: function(h){return h/1.7}
-					}
-				});
-
-			});
+				console.log(data);
 
 
-			// var reduceAdd = function(p,v) {
-			// 	p.page_views += 1;
-			// 	if (!p.active_users[v.email]) {
-			// 		p.active_users[v.email] = 1;
-			// 	} else { p.active_users[v.email] += 1 }
+				var visualizationBoxEdCol = d3plus.viz()
+					.container("#box-HC03_VC96")
+					.data(data.d3viz)
+					.type({
+						"value": "box",
+						"mode": "tukey"
+					})
+					.id("zip")
+					.x('has_starbucks')
+					.y("HC03_VC96")
+					.color({
+						value: function(d){
+							var zipcode = data.geojson[d.zip];
+							if (zipcode) {
+								return getColor(zipcode['population_density' + '_pct'])
+							} else {return '#08306b';}
+						}
+					})
+					.draw()
+
+				var visualizationBoxEdHigh = d3plus.viz()
+					.container("#box-HC03_VC88")
+					.data(data.d3viz)
+					.type({
+						"value": "box",
+						"mode": "tukey"
+					})
+					.id("zip")
+					.x('has_starbucks')
+					.y("HC03_VC88")
+					.color({
+						value: function(d){
+							var zipcode = data.geojson[d.zip];
+							if (zipcode) {
+								return getColor(zipcode['population_density' + '_pct'])
+							} else {return '#08306b';}
+						}
+					})
+					.draw()
+
+
+				var visualizationBoxHome = d3plus.viz()
+					.container("#box-home")
+					.data(data.d3viz)
+					.type({
+						"value": "box",
+						"mode": "tukey"
+					})
+					.id("zip")
+					.x('has_starbucks')
+					.y("new_homes")
+					.color({
+						value: function(d){
+							var zipcode = data.geojson[d.zip];
+							if (zipcode) {
+								return getColor(zipcode['population_density' + '_pct'])
+							} else {return '#08306b';}
+						}
+					})
+					.draw()
+
+				var visualizationBoxShop = d3plus.viz()
+					.container("#box-shop")
+					.data(data.d3viz)
+					.type({
+						"value": "box",
+						"mode": "tukey"
+					})
+					.id("zip")
+					.x('has_starbucks')
+					.y("shopping_centers")
+					.color({
+						value: function(d){
+							var zipcode = data.geojson[d.zip];
+							if (zipcode) {
+								return getColor(zipcode['population_density' + '_pct'])
+							} else {return '#08306b';}
+						}
+					})
+					.draw()
+
+
+
+
+
+///////////////////////////////////////////////////////////////////// -- dc.js / crossfilter.js dashboard				
+
+			// $('div[type="rowChart"]').each(function(i,v){
+			// 	var $chart = $(this);
+			// 	var attrs = $chart[0].attributes;
+			// 	var fnDim = new Function('d', attrs.dimension.value);
+			// 	var chartOpts = JSON.parse(attrs.opts.value);
+			// 	var chartType = attrs.type.value;
+			// 	$chart[chartType]({
+			// 		filter: filter,
+			// 		dim: fnDim,
+			// 		chartOpts: chartOpts
+			// 	}, data);
+			// });
+
+			// $('div[type="pieChart"').each(function(i,v){
+			// 	var $chart = $(this);
+			// 	var $panel = $chart.closest('.grouping').find('.panel-body');
+			// 	var height = 300;
+			// 	var width = $panel.width();
+			// 	var attrs = $chart[0].attributes;
+			// 	var chartType = attrs.type.value;
+			// 	var dimension = new Function('d', attrs.dimension.value);
+
+			// 	$chart[chartType]({
+			// 		filter: filter,
+			// 		dim: dimension,
+			// 		chartOpts: {
+			// 			innerRadius: height/3.8,
+			// 			slicesCap: 8, 
+			// 			externalLabels: 1000000000,
+			// 			externalRadiusPadding: 23,
+			// 			drawPaths: false,
+			// 			legend: dc.legend(),
+			// 			cx: width/1.8,
+			// 			cy: height/1.7,
+			// 			height: height,
+			// 			width: width,
+			// 			colors: d3.scale.category20c()
+			// 		},
+			// 		resizeOpts: {
+			// 			height: function(h){return h},
+			// 			width: function(w){return w},
+			// 			innerRadius: function(h){return h/3.8},
+			// 			externalRadiusPadding: 23,
+			// 			cx: function(w){return w/1.8},
+			// 			cy: function(h){return h/1.7}
+			// 		}
+			// 	});
+
+			// });
+
+
+			// var reduceAdd = function(p, v) {
+			// 	p.population_density = v.population_density;
+			// 	p.HC01_VC103 = v.HC01_VC103;
+			// 	p.HC01_VC03 = v.HC01_VC03;
 			// 	return p;
 			// };
-			// var reduceRemove = function(p,v) {
-			// 	p.active_users[v.email] -= 1;
-			// 	p.page_views -= 1;
-			// 	if (p.active_users[v.email] < 0.001) {
-			// 		delete p.active_users[v.email];
-			// 	}
+			// // remove
+			// var reduceRemove = function(p, v) {
+			// 	p.population_density = v.population_density;
+			// 	p.HC01_VC103 = v.HC01_VC103;
+			// 	p.HC01_VC03 = v.HC01_VC03;
 			// 	return p;
 			// };
-			// var reduceInitial = function() { 
-			// 	return { active_users: {}, page_views: 0}
+			// // init
+			// var reduceInitial = function(p, v) {
+			// 	return {
+			// 		population_density: 0,
+			// 		HC01_VC103: 0,
+			// 		HC01_VC03: 0,
+			// 		zipcodes: {}
+			// 	};
+			// };
+
+	  //       zipdim = filter.dimension(function(d){return d.zip})
+
+			// var group = {
+			// 	all: function(){return this.__proto__.top(Math.floor(315/25))},
+			// 	top: function(){return this.__proto__.top(Math.floor(315/25))},
+			// 	__proto__: zipdim.group().reduce(reduceAdd, reduceRemove, reduceInitial)
 			// }
 
+			// scatterChart
+			// 	.width(1274)
+			// 	.height(315)
+			// 	.margins({
+			// 		top: 0,
+			// 		right: 0,
+			// 		bottom: 45,
+			// 		left: 45
+			// 	})
+			// 	.dimension(zipdim)
+			// 	.group(group)
+			// 	.transitionDuration(750)
+			// 	.colors(d3.scale.category10())
+			// 	.x(d3.scale.linear().domain([0, 20000]))
+			// 	.y(d3.scale.log()
+			// 	    .base(Math.E)
+			// 	    .domain([Math.exp(0), Math.exp(9)])
+			//     )
+			// 	.r(d3.scale.linear().domain([0, 1000]))
+			// 	.keyAccessor(function(p) {
+			// 		return p.value.HC01_VC03;
+			// 	})
+			// 	.valueAccessor(function(p) {
+			// 		return p.value.HC01_VC103;
+			// 	})
+			// 	.radiusValueAccessor(function(p) {
+			// 		return Math.sqrt(p.value.population_density);
+			// 	})
+			// 	.transitionDuration(750)
+			// 	.elasticY(true)
+			// 	.yAxisPadding(100)
+			// 	.xAxisPadding(150)
+			// 	.yAxisLabel("Avg")
+			// 	.xAxisLabel("Shared")
+			// 	.label(function(p) {
+			// 		return p.key;
+			// 	})
+			// 	.title(function(d) {
+			// 		return d.key;
+			// 	})
+			// 	.renderTitle(true)
+			// 	.renderLabel(true);
 
-			var reduceAdd = function(p, v) {
-				p.population_density = v.population_density;
-				p.HC01_VC103 = v.HC01_VC103;
-				p.HC01_VC03 = v.HC01_VC03;
-				return p;
-			};
-			// remove
-			var reduceRemove = function(p, v) {
-				p.population_density = v.population_density;
-				p.HC01_VC103 = v.HC01_VC103;
-				p.HC01_VC03 = v.HC01_VC03;
-				return p;
-			};
-			// init
-			var reduceInitial = function(p, v) {
-				return {
-					population_density: 0,
-					HC01_VC103: 0,
-					HC01_VC03: 0,
-					zipcodes: {}
-				};
-			};
+			// scatterChart.render();
 
-	        zipdim = filter.dimension(function(d){return d.zip})
+		 //    var heatMap = L.map('heatMap');
+		 //    heatMap.setView([36.166294, -86.780357], 6);
+		 //    var cleanMap = true;
+			// var drawMap = function(){
+			// 	mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+			// 	L.tileLayer(
+			// 		'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			// 			attribution: '&copy; ' + mapLink + ' Contributors',
+			// 			maxZoom: 15,
+			// 		}).addTo(heatMap);
 
-			var group = {
-				all: function(){return this.__proto__.top(Math.floor(315/25))},
-				top: function(){return this.__proto__.top(Math.floor(315/25))},
-				__proto__: zipdim.group().reduce(reduceAdd, reduceRemove, reduceInitial)
-			}
+			// 	//HeatMap
+			// 	var geoData = [];
+			// 	var Latitude = 36.166294, 
+			// 		Longitude = -86.780357;
+			// 	allDim.top(Infinity).forEach(function (d) {
+			// 		if (d.Longitude != 0 && d.Latitude != 0){
+			// 			geoData.push([d.Latitude, d.Longitude, 1]);
+			// 			Latitude = d.Latitude;
+			// 			Longitude = d.Longitude;
+			// 		}
+			// 	});
+			// 	if (!cleanMap){
+			// 		heatMap.setView([Latitude, Longitude], 10);
+			// 	}
+			// 	var heat = L.heatLayer(geoData,{
+			// 		radius: 10,
+			// 		blur: 20, 
+			// 		maxZoom: 1,
+			// 	}).addTo(heatMap);
+			// };
 
-			scatterChart
-				.width(1274)
-				.height(315)
-				.margins({
-					top: 0,
-					right: 0,
-					bottom: 45,
-					left: 45
-				})
-				.dimension(zipdim)
-				.group(group)
-				.transitionDuration(750)
-				.colors(d3.scale.category10())
-				.x(d3.scale.linear().domain([0, 20000]))
-				.y(d3.scale.log()
-				    .base(Math.E)
-				    .domain([Math.exp(0), Math.exp(9)])
-			    )
-				.r(d3.scale.linear().domain([0, 1000]))
-				.keyAccessor(function(p) {
-					return p.value.HC01_VC03;
-				})
-				.valueAccessor(function(p) {
-					return p.value.HC01_VC103;
-				})
-				.radiusValueAccessor(function(p) {
-					return Math.sqrt(p.value.population_density);
-				})
-				.transitionDuration(750)
-				.elasticY(true)
-				.yAxisPadding(100)
-				.xAxisPadding(150)
-				.yAxisLabel("Avg")
-				.xAxisLabel("Shared")
-				.label(function(p) {
-					return p.key;
-				})
-				.title(function(d) {
-					return d.key;
-				})
-				.renderTitle(true)
-				.renderLabel(true);
+			// drawMap();
 
-			scatterChart.render();
-
-		    var heatMap = L.map('heatMap');
-		    heatMap.setView([36.166294, -86.780357], 6);
-		    var cleanMap = true;
-			var drawMap = function(){
-				mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
-				L.tileLayer(
-					'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-						attribution: '&copy; ' + mapLink + ' Contributors',
-						maxZoom: 15,
-					}).addTo(heatMap);
-
-				//HeatMap
-				var geoData = [];
-				var Latitude = 36.166294, 
-					Longitude = -86.780357;
-				allDim.top(Infinity).forEach(function (d) {
-					if (d.Longitude != 0 && d.Latitude != 0){
-						geoData.push([d.Latitude, d.Longitude, 1]);
-						Latitude = d.Latitude;
-						Longitude = d.Longitude;
-					}
-				});
-				if (!cleanMap){
-					heatMap.setView([Latitude, Longitude], 10);
-				}
-				var heat = L.heatLayer(geoData,{
-					radius: 10,
-					blur: 20, 
-					maxZoom: 1,
-				}).addTo(heatMap);
-			};
-
-			drawMap();
-
-	        for (var i = 0; i < dc.chartRegistry.list().length; i++) {
-	            var chartI = dc.chartRegistry.list()[i];
-	            chartI.on("filtered", function(chart, filter){
-					heatMap.eachLayer(function (layer) {
-						heatMap.removeLayer(layer);
-						cleanMap = false;
-					}); 
-					drawMap();
-	            });
-	        };
+	  //       for (var i = 0; i < dc.chartRegistry.list().length; i++) {
+	  //           var chartI = dc.chartRegistry.list()[i];
+	  //           chartI.on("filtered", function(chart, filter){
+			// 		heatMap.eachLayer(function (layer) {
+			// 			heatMap.removeLayer(layer);
+			// 			cleanMap = false;
+			// 		}); 
+			// 		drawMap();
+	  //           });
+	  //       };
 
 		})
 		.fail(function(xhr, err){
