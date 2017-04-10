@@ -314,7 +314,7 @@
 		.done(function(data){
 
 			filter.add(data.data);
-			allDim = filter.dimension(function(d){return d});
+			allDim = filter.dimension(function(d){return d.zip});
 
 			var layer = 'HC01_VC03';
 			var layerGroup = new L.layerGroup()
@@ -446,7 +446,8 @@
 						cx: width/1.8,
 						cy: height/1.7,
 						height: height,
-						width: width
+						width: width,
+						colors: d3.scale.category20c()
 					},
 					resizeOpts: {
 						height: function(h){return h},
@@ -509,7 +510,7 @@
 			var group = {
 				all: function(){return this.__proto__.top(Math.floor(315/25))},
 				top: function(){return this.__proto__.top(Math.floor(315/25))},
-				__proto__: allDim.group().reduce(reduceAdd, reduceRemove, reduceInitial)
+				__proto__: zipdim.group().reduce(reduceAdd, reduceRemove, reduceInitial)
 			}
 
 			scatterChart
@@ -521,12 +522,15 @@
 					bottom: 45,
 					left: 45
 				})
-				.dimension(allDim)
+				.dimension(zipdim)
 				.group(group)
 				.transitionDuration(750)
 				.colors(d3.scale.category10())
-				.x(d3.scale.linear().domain([0, 2000]))
-				.y(d3.scale.linear().domain([0, 8600]))
+				.x(d3.scale.linear().domain([0, 20000]))
+				.y(d3.scale.log()
+				    .base(Math.E)
+				    .domain([Math.exp(0), Math.exp(9)])
+			    )
 				.r(d3.scale.linear().domain([0, 1000]))
 				.keyAccessor(function(p) {
 					return p.value.HC01_VC03;
@@ -535,7 +539,6 @@
 					return p.value.HC01_VC103;
 				})
 				.radiusValueAccessor(function(p) {
-					console.log(p);
 					return Math.sqrt(p.value.population_density);
 				})
 				.transitionDuration(750)
@@ -545,10 +548,10 @@
 				.yAxisLabel("Avg")
 				.xAxisLabel("Shared")
 				.label(function(p) {
-					return p.key.zip;
+					return p.key;
 				})
 				.title(function(d) {
-					return d.key.zip;
+					return d.key;
 				})
 				.renderTitle(true)
 				.renderLabel(true);
@@ -616,15 +619,15 @@
 				chart.width($(this).parents('.panel').width());
 			}).trigger('resize');
 
-			var dimension = filter.dimension(function(d){return d.zip;});
+			// var dimension = filter.dimension(function(d){return d.zip;});
 			var group = {
 				all: function(){return this.__proto__.top(Math.floor(height/25))},
 				top: function(){return this.__proto__.top(Math.floor(height/25))},
-				__proto__: dimension.group().reduceCount(function(d){return d.starbucks_count})
+				__proto__: allDim.group().reduceCount(function(d){return d.starbucks_count})
 			}
 
 			var opts = options.chartOpts;
-			chart.dimension(dimension).group(group);
+			chart.dimension(allDim).group(group);
 
 			Object.keys(opts).forEach(function(opt){
 				var val = opts[opt];
@@ -665,7 +668,7 @@
 			var group = {
 				// all: function(){return this.__proto__.top(Math.floor(height/25))},
 				// top: function(){return this.__proto__.top(Math.floor(height/25))},
-				__proto__: dimension.group().reduceSum(function(d){return d.HC01_VC03})
+				__proto__: allDim.group().reduceSum(function(d){return d.HC01_VC03})
 			}
 
 			var opts = options.chartOpts;
