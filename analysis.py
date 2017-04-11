@@ -84,6 +84,18 @@ plt.ylabel('True Positive Rate')
 plt.title('Receiver operating characteristic curve')
 plt.legend(loc="lower right")
 
+from statsmodels.regression.quantile_regression import QuantReg
+
+mod = smf.quantreg('starbucks_count ~ hotels + new_homes + HC03_VC88', df)
+res = mod.fit(q=.5)
+print(res.summary())
+
+import statsmodels.formula.api as smf
+
+mod = smf.ols(formula='starbucks_count ~ new_homes + hotels + HC03_VC88', data=df)
+res = mod.fit()
+print res.summary()
+
 ############################## False positives for logit regression
 
 logit = sm.Logit(sample['has_starbucks'], sample[['new_homes','hotels','HC03_VC88','shopping_centers']])
